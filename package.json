@@ -1,0 +1,13 @@
+{
+  "name": "url-shortener-microservice",
+  "version": "0.0.0",
+  "description": "A Url Shortener Microservice for shortening url.",
+  "main": "server.js",
+  "repository": "",
+  "author": "Asif Norzai <asifkhannoorzai@gmail.com>",
+  "dependencies": {
+    "dotenv": "^2.0.0",
+    "express": "^4.13.4",
+    "mongoose": "^4.4.14"
+  }
+}
