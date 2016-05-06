@@ -4,9 +4,8 @@ const express = require('express');
 const mongoose = require('mongoose');
 
 var app = express();
-var server = http.createServer(app);
 require('dotenv').load();
-// app.use(express.static(path.resolve(__dirname, 'client')));
+
 mongoose.connect(process.env.MONGO_URI);
 var db = mongoose.connection;
 
@@ -27,6 +26,7 @@ app.get('/', (req, res) => {
 
 app.get('/new/:url*', (req, res) => {
   const short = `https://${req.headers.host}/${Math.round(Math.random() * 10000)}`;
+  if(validateUrl(req.params['url'] + req.params[0])) {
   const urlToBeSaved = new Url({ original_url: req.params['url'] + req.params[0], short_url: short });
   urlToBeSaved.save(function (err, url) {
     if (err) return console.error(err);
@@ -36,34 +36,33 @@ app.get('/new/:url*', (req, res) => {
       res.send(finalPrint);
     }
   });
+  } else {
+    res.send({error: "Wrong url format, make sure you have a valid protocol and real site."});
+  }
 }); 
 
 
-const func = (short_url, cb) => {
-  // console.log(short_url);
-    db.collection('urls')
-    .findOne({ 
-        short_url: short_url
-      }, (err, doc) => {
-        if(err) console.log(err);
-        if(doc) {
-          console.log(doc);
-          cb(doc);
-          db.close();  
-        }
-    });
-    // console.log(urlArr.original_url);
-    
+const validateUrl = (url) => {
+  const regex = /^http(s)?:\/\/(www\.)?[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$/;
+  return regex.test(url);
 };
 
-app.get('/:url', (req, res) => {
-  const cb = (url) => { res.redirect(url.original_url) };
-  func('https://'+req.headers.host+'/'+req.params.url, cb);
-  // func(req.params.url, cb);
-  // res.send(req.params.url);
-});
+const func = (short_url, callback) => {
+    Url.findOne({'short_url': short_url}, (err, doc) => {
+      if(err) console.log(err);
+      if (doc !== null) {
+       callback(null, doc);
+      }
+    });
+}
 
-server.listen(process.env.PORT || 3000, process.env.IP || "0.0.0.0", function(){
-  var addr = server.address();
-  console.log("Chat server listening at", addr.address + ":" + addr.port);
+app.get('/:url', (req, res) => {
+  const currentUrl = `https://${req.headers.host}/${req.params.url}`;
+  func(currentUrl, (err, url) => {
+    if(err) return err;
+    res.redirect(url.original_url);
+  });
+});
+app.listen(process.env.PORT || 3000, process.env.IP || "0.0.0.0", function(){
+  console.log('Running on port ' + app.port)
 });
