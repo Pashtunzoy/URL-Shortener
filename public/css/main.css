@@ -1,0 +1,15 @@
+body {
+    margin: 0 auto;
+    width: 60%;
+    font-family: AnonymousPro;
+    background-color: rgb(255, 239, 52);
+}
+
+
+.main-header {
+    text-align: center;
+}
+
+code {
+    background-color: rgba(255, 0, 0, 0.18);
+}

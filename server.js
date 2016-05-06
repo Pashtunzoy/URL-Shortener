@@ -5,7 +5,7 @@ const mongoose = require('mongoose');
 
 var app = express();
 require('dotenv').load();
-
+app.use('/public', express.static(process.cwd() + '/public'));
 mongoose.connect(process.env.MONGO_URI);
 var db = mongoose.connection;
 
@@ -21,7 +21,11 @@ var Url = mongoose.model('Url', urlSchema);
 
 
 app.get('/', (req, res) => {
-  res.send({'GoHome': 'You are drunk?'})
+  res.sendFile(__dirname +'/public/index.html');
+});
+
+app.get('/new', (req, res) => {
+  res.send({error: 'Not Found please put a link after /new/link.'})
 });
 
 app.get('/new/:url*', (req, res) => {
